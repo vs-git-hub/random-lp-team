@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7650e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Random LP">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Random LP Team — Делимся на команды</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{min-height:100%}
+body{font-family:Arial,sans-serif;margin:0;padding:12px;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;background:linear-gradient(160deg,#101713 0%,#18231a 45%,#0c110e 100%);color:#172019}
+.container{width:100%;max-width:430px;background:#f7f8f7;padding:18px 16px 15px;border-radius:26px;box-shadow:0 15px 45px rgba(0,0,0,.35);text-align:center}
+h2{margin:0;font-size:27px;line-height:1.1;font-weight:900;color:#18221a}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px;margin-bottom:10px}
+.settings label{display:block;margin-bottom:5px;font-size:11px;font-weight:900;color:#7a837c;text-transform:uppercase}
+.settings input,.settings select{width:100%;height:46px;padding:0 8px;border:2px solid #e0e3e0;border-radius:11px;background:white;color:#18221a;font-size:17px;font-weight:800;text-align:center;outline:none}
+.settings input:focus,.settings select:focus{border-color:#7650e8}
+.settings button{grid-column:1 / -1;height:39px;border:none;border-radius:10px;background:#27ae60;color:white;font-size:13px;font-weight:900;text-transform:uppercase}
+#result{width:min(46vw,165px);height:min(46vw,165px);min-width:145px;min-height:145px;border-radius:50%;margin:10px auto 12px;display:flex;align-items:center;justify-content:center;padding:15px;font-size:clamp(21px,6vw,27px);line-height:1.05;font-weight:900;text-transform:uppercase;text-align:center;color:white;background:#c7cbc8;border:5px solid white;box-shadow:0 5px 15px rgba(0,0,0,.15);text-shadow:0 2px 5px rgba(0,0,0,.2)}
+#pickBtn{width:100%;height:68px;border:none;border-radius:17px;background:linear-gradient(135deg,#8058f0,#6236d3);color:white;font-size:22px;font-weight:900;letter-spacing:.2px;box-shadow:0 5px 0 #45229b,0 8px 15px rgba(91,55,200,.22);cursor:pointer}
+#pickBtn:active{transform:translateY(4px);box-shadow:0 1px 0 #45229b}
+#pickBtn:disabled{background:#a1a5a2;box-shadow:0 5px 0 #777;cursor:default}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}
+.stat{min-width:0;padding:8px 3px;border-radius:11px;font-size:10px;font-weight:900;white-space:nowrap}
+.stat-number{display:block;margin-bottom:2px;font-size:23px;line-height:1}
+.orange-stat{background:#ff7800;color:white}
+.lime-stat{background:#b8df18;color:#172000}
+.blue-stat{background:#1677e8;color:white}
+.hidden{display:none}
+.progress{margin-top:9px;font-size:12px;font-weight:800;color:#69726c}
+.message{min-height:20px;margin-top:4px;font-size:13px;font-weight:800;color:#27ae60}
+.history{margin-top:8px;padding:9px 7px;min-height:38px;border-radius:12px;background:#edf0ed;color:#707871;font-size:11px;line-height:1.5;overflow:hidden}
+.history span{display:inline-block;padding:4px 7px;margin:2px;border-radius:12px;color:white;font-size:10px;font-weight:900}
+.orange-bg{background:#ff7800}
+.lime-bg{background:#b8df18;color:#172000!important}
+.blue-bg{background:#1677e8}
+.reset-btn{width:100%;height:43px;margin-top:9px;border:none;border-radius:11px;background:#e67e22;color:white;font-size:13px;font-weight:900}
+@media (max-height:700px){body{padding:7px}.container{padding:13px 13px 11px}h2{font-size:23px}.settings{margin-top:9px;margin-bottom:6px}#result{width:135px;height:135px;min-width:135px;min-height:135px;margin:7px auto 9px}#pickBtn{height:60px;font-size:20px}.stats{margin-top:9px}.history{margin-top:6px}.reset-btn{margin-top:6px}}
+@media (max-width:360px){body{padding:5px}.container{padding:12px 10px;border-radius:20px}h2{font-size:22px}#result{width:130px;height:130px;min-width:130px;min-height:130px;font-size:19px}#pickBtn{height:57px;font-size:19px}.stat{font-size:9px}.stat-number{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>⚽ Делимся на команды</h2>
+
+<div class="settings">
+<div>
+<label>КОМАНД</label>
+<select id="teamInput">
+<option value="2">2 команды</option>
+<option value="3">3 команды</option>
+</select>
+</div>
+<div>
+<label>УЧАСТНИКОВ</label>
+<input type="number" id="totalInput" value="20" min="2" max="100">
+</div>
+<button onclick="applyTotal()">ПРИМЕНИТЬ ПАРАМЕТРЫ</button>
+</div>
+
+<div id="result">?</div>
+
+<button id="pickBtn" onclick="pickTeam()">🎲 ВЫБРАТЬ КОМАНДУ</button>
+
+<div class="stats">
+<div id="orangeStat" class="stat orange-stat"><span id="orangeCount" class="stat-number">0</span>🟧 Оранжевые</div>
+<div id="limeStat" class="stat lime-stat"><span id="limeCount" class="stat-number">0</span>🟩 Салатовые</div>
+<div id="blueStat" class="stat blue-stat hidden"><span id="blueCount" class="stat-number">0</span>🟦 Синие</div>
+</div>
+
+<div id="progress" class="progress">Выбрано: 0 из 20</div>
+<div id="message" class="message">Начните жеребьёвку</div>
+<div id="history" class="history">История пуста</div>
+
+<button class="reset-btn" onclick="resetAll()">🔄 НАЧАТЬ ЗАНОВО</button>
+</div>
+
+<script>
+let history=[];
+let orange=0;
+let lime=0;
+let blue=0;
+let TOTAL=20;
+let TEAM_COUNT=2;
+let draw=[];
+
+const COLORS={
+orange:{name:"оранжевые",bg:"#ff7800",text:"white",historyClass:"orange-bg"},
+lime:{name:"салатовые",bg:"#b8df18",text:"#172000",historyClass:"lime-bg"},
+blue:{name:"синие",bg:"#1677e8",text:"white",historyClass:"blue-bg"}
+};
+
+function applyTotal(){
+const input=document.getElementById("totalInput");
+let val=parseInt(input.value);
+if(isNaN(val)||val<2)val=2;
+if(val>100)val=100;
+input.value=val;
+TOTAL=val;
+TEAM_COUNT=parseInt(document.getElementById("teamInput").value);
+resetAll();
+}
+
+function shuffle(array){
+for(let i=array.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+const temp=array[i];
+array[i]=array[j];
+array[j]=temp;
+}
+}
+
+function createDraw(){
+draw=[];
+let teams;
+if(TEAM_COUNT===2){teams=["orange","lime"];}
+else{teams=["orange","lime","blue"];}
+const base=Math.floor(TOTAL/TEAM_COUNT);
+const extra=TOTAL%TEAM_COUNT;
+for(let i=0;i<TEAM_COUNT;i++){
+let amount=base;
+if(i<extra)amount++;
+for(let j=0;j<amount;j++)draw.push(teams[i]);
+}
+shuffle(draw);
+}
+
+function pickTeam(){
+if(draw.length===0)return;
+const colorKey=draw.pop();
+const color=COLORS[colorKey];
+
+if(colorKey==="orange")orange++;
+if(colorKey==="lime")lime++;
+if(colorKey==="blue")blue++;
+
+const resultDiv=document.getElementById("result");
+resultDiv.textContent=color.name.toUpperCase();
+resultDiv.style.background=color.bg;
+resultDiv.style.color=color.text;
+
+history.push(colorKey);
+updateHistory();
+
+document.getElementById("orangeCount").textContent=orange;
+document.getElementById("limeCount").textContent=lime;
+document.getElementById("blueCount").textContent=blue;
+
+const selected=TOTAL-draw.length;
+document.getElementById("progress").textContent="Выбрано: "+selected+" из "+TOTAL;
+
+if(draw.length===0){
+document.getElementById("message").textContent="🎉 Все распределены!";
+document.getElementById("pickBtn").disabled=true;
+}else{
+document.getElementById("message").textContent="Осталось "+draw.length+" человек";
+}
+}
+
+function updateHistory(){
+const historyDiv=document.getElementById("history");
+if(history.length===0){
+historyDiv.innerHTML="История пуста";
+return;
+}
+const last=history.slice(-20);
+let html="Последние результаты:<br>";
+last.forEach(function(colorKey,index){
+const color=COLORS[colorKey];
+const number=history.length-last.length+index+1;
+html+='<span class="'+color.historyClass+'">#'+number+" "+color.name+"</span>";
+});
+historyDiv.innerHTML=html;
+}
+
+function resetAll(){
+history=[];
+orange=0;
+lime=0;
+blue=0;
+
+document.getElementById("orangeCount").textContent="0";
+document.getElementById("limeCount").textContent="0";
+document.getElementById("blueCount").textContent="0";
+
+if(TEAM_COUNT===2){
+document.getElementById("blueStat").classList.add("hidden");
+}else{
+document.getElementById("blueStat").classList.remove("hidden");
+}
+
+const result=document.getElementById("result");
+result.textContent="?";
+result.style.background="#c7cbc8";
+result.style.color="white";
+
+document.getElementById("pickBtn").disabled=false;
+document.getElementById("message").textContent="Начните жеребьёвку";
+
+createDraw();
+updateHistory();
+
+document.getElementById("progress").textContent="Выбрано: 0 из "+TOTAL;
+}
+
+TOTAL=20;
+TEAM_COUNT=2;
+document.getElementById("totalInput").value=20;
+document.getElementById("teamInput").value=2;
+resetAll();
+
+if("serviceWorker" in navigator){
+window.addEventListener("load",function(){
+navigator.serviceWorker.register("./sw.js").catch(function(){});
+});
+}
+</script>
+</body>
+</html>
